@@ -25,18 +25,6 @@ function PicarDirecion(Direcion)
     end
 end
 
-function PicarDirecion(Direcion)
-    if Direcion == "Arriba" then
-        turtle.digUp()
-    elseif  Direcion == "Abajo" then
-        turtle.digDown()
-    elseif Direcion == "Frente" then
-        turtle.dig()
-    else
-        error("Mala Direcion")
-    end
-end
-
 function BloqueDirecion(Direcion)
     if Direcion == "Arriba" then
         turtle.placeDown()
@@ -96,11 +84,11 @@ function Avanzar(Numero,Direcion)
                 turtle.transferTo(2)
                 PicarDirecion(Direcion)
                 MoverDirecion(Direcion)
-                CheckDarLavuelta()
+                CheckDarLavuelta(Direcion)
                 IntercambiarSloc(1,2)
                 BloqueDirecion(Direcion)
                 IntercambiarSloc(1,2)
-                CheckDarLavuelta()
+                CheckDarLavuelta(Direcion)
             else
                 PicarDirecion(Direcion)
                 MoverDirecion(Direcion)
@@ -108,9 +96,9 @@ function Avanzar(Numero,Direcion)
         else
             if turtle.getItemCount() > 0 then
                 MoverDirecion(Direcion)
-                CheckDarLavuelta()
+                CheckDarLavuelta(Direcion)
                 BloqueDirecion(Direcion)
-                CheckDarLavuelta()
+                CheckDarLavuelta(Direcion)
             else
                 MoverDirecion(Direcion)
             end
