@@ -67,40 +67,52 @@ function CheckDarLavuelta(Direcion)
     end
 end
 
-function IntercambiarSloc(Sloc1,Sloc2)
-    turtle.transferTo(15)
-    turtle.select(2)
-    turtle.transferTo(Sloc1)
-    turtle.select(15)
-    turtle.transferTo(Sloc2)
-    turtle.select(1)
+function PonerBloqueDetras(Direcion)
+    CheckDarLavuelta(Direcion)
+    IntercambiarSloc()
+    BloqueDirecion(Direcion)
+    IntercambiarSloc()
+    CheckDarLavuelta(Direcion)
+end
+
+function IntercambiarSloc()
+    if turtle.getSelectedSlot() == 1 then
+        turtle.select(2)
+    elseif turtle.getSelectedSlot() == 2 then
+        turtle.select(1)
+    end
+end
+
+function getSlococcupied()
+    if turtle.getItemCount(2) ~= 0 then
+        return 2
+    end
+    return 1
 end
 
 function Avanzar(Numero,Direcion)
-    turtle.select(1)
     for i=1,Numero do
+        --Revisar Slot selecionado correcto
+        if turtle.getSelectedSlot() ~= 1 or turtle.getSelectedSlot() ~= 2 then
+            turtle.select(getSlococcupied())
+        end
+        --Intercambiar Sloc vacio
+        TengoBloque = false
+        while(turtle.getItemCount() ~= 0) do
+            TengoBloque = true
+            IntercambiarSloc()
+        end
+        --Mover Direcion
         if DetectDirecion(Direcion) then
-            if turtle.getItemCount() > 0 then
-                turtle.transferTo(2)
-                PicarDirecion(Direcion)
-                MoverDirecion(Direcion)
-                CheckDarLavuelta(Direcion)
-                IntercambiarSloc(1,2)
-                BloqueDirecion(Direcion)
-                IntercambiarSloc(1,2)
-                CheckDarLavuelta(Direcion)
-            else
-                PicarDirecion(Direcion)
-                MoverDirecion(Direcion)
+            PicarDirecion(Direcion)
+            MoverDirecion(Direcion)
+            if TengoBloque then
+                PonerBloqueDetras(Direcion)
             end
         else
-            if turtle.getItemCount() > 0 then
-                MoverDirecion(Direcion)
-                CheckDarLavuelta(Direcion)
-                BloqueDirecion(Direcion)
-                CheckDarLavuelta(Direcion)
-            else
-                MoverDirecion(Direcion)
+            MoverDirecion(Direcion)
+            if TengoBloque then
+                PonerBloqueDetras(Direcion)
             end
         end
     end
@@ -190,4 +202,4 @@ end
 
 -- Definir dicionario de libreria
 
-return { EncontrarNill = EncontrarNill, DarLavuelta = DarLavuelta, PicarDirecion = PicarDirecion, BloqueDirecion = BloqueDirecion, MoverDirecion = MoverDirecion, DetectDirecion = DetectDirecion , CheckDarLavuelta = CheckDarLavuelta, IntercambiarSloc = IntercambiarSloc, Avanzar = Avanzar, MirarAPosi = MirarAPosi, RecorrerDistancia = RecorrerDistancia }
+return { EncontrarNill = EncontrarNill, RecorrerDistancia = RecorrerDistancia }
