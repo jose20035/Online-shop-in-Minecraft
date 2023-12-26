@@ -9,7 +9,7 @@ movilidad = require("functions")
 
 -- Variables
 
-AlturaDeTransito = 73
+AlturaDeTransito = 100
 
 -- Destino
 DesX = tonumber(arg[1])
@@ -22,7 +22,7 @@ LocX, LocY, LocZ = gps.locate()
 
 -- main
 
-if movilidad.EncontrarNill(DesX,DesY,DesZ) == 1 then
+if movilidad.EncontrarNill(DesX,DesY,DesZ) then
     print("Faltan 3 argumentos que corresponden a la posición del destino en el siguiente orden (X Y Z).")
 else
     movilidad.RecorrerDistancia(AlturaDeTransito,LocY,"Y")

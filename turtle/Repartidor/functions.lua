@@ -2,9 +2,9 @@
 
 function EncontrarNill (X,Y,Z)
     if X == nil or Y == nil or Z == nil then
-        return 1
+        return true
     else
-        return 0
+        return false
     end
 end
 
