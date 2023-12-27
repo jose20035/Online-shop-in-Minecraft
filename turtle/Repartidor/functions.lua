@@ -90,6 +90,13 @@ function getSlococcupied()
     return 1
 end
 
+function ComprobarLatitudPositiva(Des,Loc)
+    if Des > Loc then
+        return true
+    end
+    return false
+end
+
 function Avanzar(Numero,Direcion)
     for i=1,Numero do
         --Revisar Slot selecionado correcto
@@ -177,7 +184,6 @@ function MirarAPosi(Latitud)
     
     --Esta mirando Z
     if SecZ > FirZ then
-        print("He entrado en Z")
         if Latitud == "X" then
             turtle.turnLeft()
             return gps.locate()
@@ -208,42 +214,35 @@ function MirarAPosi(Latitud)
     end
 end
 
-function RecorrerDistancia(Des, Loc, Latitud)
-    if Latitud == "Y" then
+function RecorrerCordenadas(Des, Loc, Vertice)
+    -- Revisar String
+    if Vertice == nil then
+        error("Latitud Vacia")
+    elseif Vertice ~= "Vertical" and Vertice ~= "Horizontal" then
+        error("Latitud erronea")
+    end
+
+    --Vertice Vertical
+    if Vertice == "Vertical" then
         Distancia = Des - Loc
         if Des > Loc then
             Avanzar(math.abs(Distancia),"Arriba")
         else
             Avanzar(math.abs(Distancia),"Abajo")
         end
-    elseif Latitud == "X" then
+    end
+
+    -- --Vertice Horizontal
+    
+    if Vertice == "Horizontal" then
         Distancia = Des - Loc
-        if Des > Loc then
-            MirarAPosi("X")
-            Avanzar(math.abs(Distancia),"Frente")
-        else
-            MirarAPosi("X")
-            DarLavuelta()
-            Avanzar(math.abs(Distancia),"Frente")
-        end
-    elseif Latitud == "Z" then
-        Distancia = Des - Loc
-        if Des > Loc then
-            MirarAPosi("Z")
-            Avanzar(math.abs(Distancia),"Frente")
-        else
-            MirarAPosi("Z")
-            DarLavuelta()
-            Avanzar(math.abs(Distancia),"Frente")
-        end
-    else
-        error("Mala entrada en la entrada de Latitud")
+        Avanzar(math.abs(Distancia),"Frente")
     end
 end
 
 function MoverA(DesX, DesY, DesZ, AlturaDeTransito)
     -- Revisar Numeros de Cordenadas
-    if movilidad.EncontrarNill(DesX,DesY,DesZ) then
+    if EncontrarNill(DesX,DesY,DesZ) then
         error("Faltan 3 argumentos que corresponden a la posición del destino en el siguiente orden (X Y Z).")
     end
 
@@ -251,13 +250,37 @@ function MoverA(DesX, DesY, DesZ, AlturaDeTransito)
     LocX, LocY, LocZ = gps.locate()
     
     --Ir a altura de transito
-    RecorrerDistancia(AlturaDeTransito,LocY,"Y")
-    
-    --Mover destino
+    RecorrerCordenadas(AlturaDeTransito,LocY,"Vertical")
 
+    --Mover X
+    if ComprobarLatitudPositiva(DesX,LocX) then
+        LocX, LocY, LocZ = MirarAPosi("X")
+        RecorrerCordenadas(DesX,LocX,"Horizontal")
+        -- Mover Z
+        if ComprobarLatitudPositiva(DesZ,LocZ) then
+            turtle.turnRight()
+            RecorrerCordenadas(DesZ,LocZ,"Horizontal")
+        else
+            turtle.turnLeft()
+            RecorrerCordenadas(DesZ,LocZ,"Horizontal")
+        end
+    else
+        LocX, LocY, LocZ = MirarAPosi("-X")
+        RecorrerCordenadas(DesX,LocX,"Horizontal")
+        -- Mover Z
+        if ComprobarLatitudPositiva(DesZ,LocZ) then
+            turtle.turnLeft()
+            RecorrerCordenadas(DesZ,LocZ,"Horizontal")
+        else
+            turtle.turnRight()
+            RecorrerCordenadas(DesZ,LocZ,"Horizontal")
+        end
+    end
 
+    --Bajar altura de transito
+    RecorrerCordenadas(DesY,AlturaDeTransito,"Vertical")
 end
 
 -- Definir dicionario de libreria
 
-return { EncontrarNill = EncontrarNill, RecorrerDistancia = RecorrerDistancia, MirarAPosi = MirarAPosi }
+return { MoverA = MoverA }
