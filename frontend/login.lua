@@ -1,116 +1,112 @@
-local basalt = require("basaltWeb")
+local basalt = require("/basalt")
 local hash = require("hash")
-local login = basalt.createFrame()
 
---Variables
+return function(mainFrame)
+    -- Create subFrame
+    local login = mainFrame:addFrame()
+    :setSize(26,20)
+    :setBackground(colors.lightGray)
+    :show()
 
-Server = 8
+    -- Defincir objetos
+    local EnviarLogin = login:addButton()
+        :setText("Enviar")
+        :setPosition(17,16)
+        :setBackground(colors.red)
+        :setSize(8,3)
 
--- Defincir objetos
+    local ImpUsuario = login:addInput()
+        :setPosition(10,7)
 
--- login
+    local LabelUsuario = login:addLabel()
+        :setText("User:")
+        :setPosition(4,7)
 
-local EnviarLogin = login:addButton()
-    :setText("Enviar")
-    :setPosition(17,16)
-    :setBackground(colors.red)
-    :setSize(8,3)
+    local ImpPass = login:addInput()
+        :setPosition(10,9)
+        :setInputType("password")
 
-local GoCreateUser = login:addButton()
-    :setText("Registrarse")
-    :setPosition(3,16)
-    :setBackground(colors.red)
-    :setSize(11,3)
+    local LabelUsuario = login:addLabel()
+        :setText("Pass:")
+        :setPosition(4,9)
 
-local ImpUsuario = login:addInput()
-    :setPosition(10,7)
+    local LabelError = login:addLabel()
+        :hide()
+        :setText("Pass incorrecta o usuario no encontrado")
+        :setPosition(4,12)
+        :setForeground(colors.red)
 
-local LabelUsuario = login:addLabel()
-    :setText("User:")
-    :setPosition(4,7)
+    local LabelEntrando = login:addLabel()
+        :hide()
+        :setText("Entrando ...")
+        :setPosition(4,12)
+        :setForeground(colors.green)
 
-local ImpPass = login:addInput()
-    :setPosition(10,9)
-    :setInputType("password")
+    local LabelErrorServer = login:addLabel()
+        :hide()
+        :setText("Error con el servidor")
+        :setPosition(4,12)
+        :setForeground(colors.red)
 
-local LabelUsuario = login:addLabel()
-    :setText("Pass:")
-    :setPosition(4,9)
+    local BackgroundTitleLogin = login:addLabel()
+        :setPosition(1,1)
+        :setText("")
+        :setSize(26,4)
+        :setBackground(colors.orange)
 
-local LabelError = login:addLabel()
-    :hide()
-    :setText("Pass incorrecta o usuario no encontrado")
-    :setPosition(4,12)
-    :setForeground(colors.red)
+    local LabelTitleLogin = login:addLabel()
+        :setPosition(7,2)
+        :setText("Login")
+        :setForeground(colors.blue)
+        :setBackground(colors.orange)
+        :setFontSize(2)
 
-local LabelEntrando = login:addLabel()
-    :hide()
-    :setText("Entrando ...")
-    :setPosition(4,12)
-    :setForeground(colors.green)
+    local GoRegister = login:addButton()
+        :setText("Registrarse")
+        :setPosition(3,16)
+        :setBackground(colors.red)
+        :setSize(11,3)
+    
+    local EnviarLogin = login:addButton()
+        :setText("Enviar")
+        :setPosition(17,16)
+        :setBackground(colors.red)
+        :setSize(8,3)
 
-local LabelErrorServer = login:addLabel()
-    :hide()
-    :setText("Error con el servidor")
-    :setPosition(4,12)
-    :setForeground(colors.red)
+    -- Funcones de objetos 
+    GoRegister:onClick(basalt.schedule(function(self)
+        self:setBackground(colors.green)
+        sleep(0.2)
+        self:setBackground(colors.red)
+        loginFrame:hide()
+        registerFrame:show()
+    end))
 
-local BackgroundTitleLogin = login:addLabel()
-    :setPosition(1,1)
-    :setText("")
-    :setSize(26,4)
-    :setBackground(colors.orange)
-
-local LabelTitleLogin = login:addLabel()
-    :setPosition(7,2)
-    :setText("Login")
-    :setFontSize(2)
-    :setForeground(colors.blue)
-    :setBackground(colors.orange)
-
--- Funciones
-
-function EsperarRespuesta(protocol,time)
-    id = true
-    while id ~= Server and id ~= nil do
-        id, message, protocol = rednet.receive(protocol,time)
-    end
-    return id, message, protocol
-end
-
--- Funcones de objetos
-
-EnviarLogin:onClick(basalt.schedule(function(self)
-    self:setBackground(colors.green)
-    rednet.send(Server,ImpUsuario:getValue(),"login")
-    id, message, protocol = EsperarRespuesta("login",10)
-    if id == Server then
-        if message == hash.sha256(ImpPass:getValue()) then
-            LabelErrorServer:hide()
+    EnviarLogin:onClick(basalt.schedule(function(self)
+        self:setBackground(colors.green)
+        rednet.send(Server,ImpUsuario:getValue(),"login")
+        id, message, protocol = EsperarRespuesta("login",10)
+        if id == Server then
+            if message == hash.sha256(ImpPass:getValue()) then
+                LabelErrorServer:hide()
+                LabelError:hide()
+                LabelEntrando:show()
+            else
+                LabelErrorServer:hide()
+                LabelEntrando:hide()
+                LabelError:show()
+            end
+        elseif id == nil then
             LabelError:hide()
-            LabelEntrando:show()
-        else
-            LabelErrorServer:hide()
             LabelEntrando:hide()
-            LabelError:show()
+            LabelErrorServer:show()
         end
-    elseif id == nil then
+        sleep(2)
+        LabelErrorServer:hide()
         LabelError:hide()
         LabelEntrando:hide()
-        LabelErrorServer:show()
-    end
-    sleep(2)
-    LabelErrorServer:hide()
-    LabelError:hide()
-    LabelEntrando:hide()
-    self:setBackground(colors.red)
-end))
+        self:setBackground(colors.red)
+    end))
 
-GoCreateUser:onClick(basalt.schedule(function(self)
-    self:setBackground(colors.green)
-    sleep(0.2)
-    register.register:show()
-    self:setBackground(colors.red)
-end))
-
-return { login = login }
+    return login
+end
