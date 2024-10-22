@@ -4,6 +4,9 @@ function ReadUserjson()
     file = fs.open("/home/data/user.json","r")
     datastr = file.readAll()
     file.close()
+    if datastr == "[]" or datastr == ""  then
+        return {}
+    end
     return textutils.unserialiseJSON(datastr)
 end
 
